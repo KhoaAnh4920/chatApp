@@ -1,0 +1,48 @@
+version: '3'
+services:
+  web:
+    container_name: chat-api
+    volumes:
+      - ./:/src # mount từ môi trường gốc vào trong
+    environment: 
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - PORT=${PORT}
+    ports:
+      - "${PORT}:${PORT}"
+    restart: unless-stopped
+    depends_on:
+        - redis
+        - mongo
+  mongo:
+    image: mongo:latest
+    container_name: chat-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: root
+    ports:
+      - 27017:27017
+    volumes:
+      - ./mongo_data:/data/db
+  redis:
+    image: redis
+    container_name: chat-redis
+    volumes:
+      - ./redis_data:/data/db/redis
+    ports:
+      - '6379:6379'
+    restart: unless-stopped
+  # rabbitmq:
+  #   container_name: chat-rabbitmq
+  #   image: rabbitmq:management
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
+  #   restart: always
+    # networks:
+    #   - test-network
+
+volumes:
+ mongodb:
